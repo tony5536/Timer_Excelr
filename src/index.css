@@ -1,0 +1,71 @@
+:root {
+  --color-brand-red: #e31e2f;
+  --color-brand-red-hover: #c91928;
+  --color-navy: #0b1020;
+  --color-navy-strong: #111827;
+  --color-card: #151d30;
+  --color-panel: rgba(17, 24, 39, 0.9);
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-white: #ffffff;
+  --color-bg: #0b1020;
+  --color-error-bg: rgba(227, 30, 47, 0.12);
+  --color-error-text: #fecaca;
+  --font-family: Inter, 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', Menlo, monospace;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --shadow-soft: 0 18px 40px rgba(2, 6, 23, 0.45);
+  --transition-fast: 160ms ease;
+  --transition-normal: 260ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  background: var(--color-bg);
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at top, rgba(227, 30, 47, 0.1), transparent 22%),
+    var(--color-bg);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
