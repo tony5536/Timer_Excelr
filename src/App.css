@@ -28,18 +28,14 @@
 
 .brand {
   display: inline-flex;
-  align-items: baseline;
-  letter-spacing: -0.04em;
-  font-weight: 800;
-  font-size: clamp(1.15rem, 2vw, 1.7rem);
+  align-items: center;
 }
 
-.brand__excel {
-  color: var(--color-text);
-}
-
-.brand__r {
-  color: var(--color-brand-red);
+.brand__logo {
+  height: clamp(32px, 4.5vw, 48px);
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
 }
 
 .app-header__label {
@@ -454,19 +450,16 @@
 
 .display-shell__brand {
   display: inline-flex;
-  align-items: baseline;
-  font-size: clamp(1.4rem, 2vw, 2.2rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
 }
 
-.display-shell__brand-excel {
-  color: var(--color-text);
-}
-
-.display-shell__brand-r {
-  color: var(--color-brand-red);
+.display-shell__brand-logo {
+  height: clamp(40px, 6vw, 68px);
+  width: auto;
+  max-width: 320px;
+  object-fit: contain;
 }
 
 .display-shell__title {

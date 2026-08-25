@@ -142,9 +142,8 @@ function App() {
     return (
       <main className="display-shell">
         <div className="display-shell__content">
-          <div className="display-shell__brand" aria-label="ExcelR brand">
-            <span className="display-shell__brand-excel">Excel</span>
-            <span className="display-shell__brand-r">R</span>
+          <div className="display-shell__brand">
+            <img src="/excelr-logo.png" alt="ExcelR" className="display-shell__brand-logo" />
           </div>
 
           <h1 className="display-shell__title">{displayTitle}</h1>

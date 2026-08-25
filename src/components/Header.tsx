@@ -16,12 +16,11 @@ export function Header({ phase }: HeaderProps) {
 
   return (
     <header className="app-header">
-      <div className="brand" aria-label="ExcelR logo">
-        <span className="brand__excel">Excel</span>
-        <span className="brand__r">R</span>
+      <div className="brand">
+        <img src="/excelr-logo.png" alt="ExcelR" className="brand__logo" />
       </div>
 
-      <div className="app-header__label">SESSION TIMER</div>
+      <div className="app-header__label">EDL PROGRAM TIMER</div>
 
       <div className={`status-pill status-pill--${phase}`}>
         <span className="status-pill__dot" aria-hidden="true" />
