@@ -1,24 +1,24 @@
 :root {
   --color-brand-red: #e31e2f;
   --color-brand-red-hover: #c91928;
-  --color-navy: #0b1020;
-  --color-navy-strong: #111827;
-  --color-card: #151d30;
-  --color-panel: rgba(17, 24, 39, 0.9);
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-border: rgba(255, 255, 255, 0.08);
+  --color-navy: #f8fafc;
+  --color-navy-strong: #ffffff;
+  --color-card: #ffffff;
+  --color-panel: #ffffff;
+  --color-surface: #f1f5f9;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
   --color-white: #ffffff;
-  --color-bg: #0b1020;
-  --color-error-bg: rgba(227, 30, 47, 0.12);
-  --color-error-text: #fecaca;
+  --color-bg: #f8fafc;
+  --color-error-bg: #fef2f2;
+  --color-error-text: #991b1b;
   --font-family: Inter, 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', Menlo, monospace;
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 22px;
-  --shadow-soft: 0 18px 40px rgba(2, 6, 23, 0.45);
+  --shadow-soft: 0 12px 32px rgba(15, 23, 42, 0.08);
   --transition-fast: 160ms ease;
   --transition-normal: 260ms ease;
 }
@@ -41,8 +41,8 @@ body {
   font-family: var(--font-family);
   color: var(--color-text);
   background:
-    radial-gradient(circle at top, rgba(227, 30, 47, 0.1), transparent 22%),
-    var(--color-bg);
+    radial-gradient(circle at top, rgba(2, 132, 199, 0.06), transparent 35%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
