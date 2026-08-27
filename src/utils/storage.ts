@@ -1,4 +1,5 @@
-import type { SessionConfig, TimerSnapshot } from '../types'
+import type { BackgroundConfig, SessionConfig, TimerSnapshot } from '../types'
+
 
 const STORAGE_KEY = 'excelr-session-config'
 const TIMER_STORAGE_KEY = 'excelr-session-timer'
@@ -99,3 +100,44 @@ export function saveTimerSnapshot(snapshot: TimerSnapshot): void {
     // localStorage may be unavailable or full — fail silently
   }
 }
+
+const BACKGROUND_STORAGE_KEY = 'excelr-background-config'
+
+export const DEFAULT_BACKGROUND_CONFIG: BackgroundConfig = {
+  posterUrl: null,
+  opacity: 30,
+}
+
+export function loadBackgroundConfig(): BackgroundConfig {
+  try {
+    const stored = localStorage.getItem(BACKGROUND_STORAGE_KEY)
+    if (!stored) return { ...DEFAULT_BACKGROUND_CONFIG }
+
+    const parsed = JSON.parse(stored) as Partial<BackgroundConfig>
+    const opacity =
+      typeof parsed.opacity === 'number' && parsed.opacity >= 0 && parsed.opacity <= 100
+        ? parsed.opacity
+        : DEFAULT_BACKGROUND_CONFIG.opacity
+    const posterUrl =
+      typeof parsed.posterUrl === 'string' && parsed.posterUrl.trim()
+        ? parsed.posterUrl
+        : null
+
+    return { posterUrl, opacity }
+  } catch {
+    return { ...DEFAULT_BACKGROUND_CONFIG }
+  }
+}
+
+export function saveBackgroundConfig(config: BackgroundConfig): void {
+  localStorage.setItem(BACKGROUND_STORAGE_KEY, JSON.stringify(config))
+}
+
+export function clearBackgroundConfig(): void {
+  try {
+    localStorage.removeItem(BACKGROUND_STORAGE_KEY)
+  } catch {
+    // ignore
+  }
+}
+

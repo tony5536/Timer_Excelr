@@ -23,3 +23,9 @@ export interface TimerSnapshot {
   totalPausedDuration: number
   completedDurationMs: number
 }
+
+export interface BackgroundConfig {
+  posterUrl: string | null
+  opacity: number
+}
+

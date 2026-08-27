@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
+import { BackgroundLayer } from './components/BackgroundLayer'
+import { BackgroundSettings } from './components/BackgroundSettings'
 import { CountdownDisplay } from './components/CountdownDisplay'
 import { Header } from './components/Header'
 import { SessionForm } from './components/SessionForm'
 import { useCountdown } from './hooks/useCountdown'
-import type { DisplayMode } from './types'
+import type { BackgroundConfig, DisplayMode } from './types'
 import { formatCountdownDisplay, formatStopwatchClock } from './utils/countdown'
+import {
+  clearBackgroundConfig,
+  loadBackgroundConfig,
+  saveBackgroundConfig,
+} from './utils/storage'
 import './App.css'
 
 function App() {
@@ -28,6 +35,7 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [bgConfig, setBgConfig] = useState<BackgroundConfig>(loadBackgroundConfig)
 
   const displayTitle = config.sessionTitle.trim() || 'ExcelR Training Session'
 
@@ -138,9 +146,46 @@ function App() {
     setShowConfirmation(false)
   }
 
+  const handleSelectPoster = (file: File): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        try {
+          const posterUrl = reader.result as string
+          const nextConfig = { ...bgConfig, posterUrl }
+          saveBackgroundConfig(nextConfig)
+          setBgConfig(nextConfig)
+          resolve()
+        } catch (err) {
+          reject(err)
+        }
+      }
+      reader.onerror = () => reject(new Error('Failed to read image file.'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleRemovePoster = () => {
+    clearBackgroundConfig()
+    setBgConfig((prev) => ({ ...prev, posterUrl: null }))
+  }
+
+  const handleOpacityChange = (opacity: number) => {
+    setBgConfig((prev) => {
+      const nextConfig = { ...prev, opacity }
+      try {
+        saveBackgroundConfig(nextConfig)
+      } catch {
+        // failure to save optional
+      }
+      return nextConfig
+    })
+  }
+
   if (hasDisplayScreen) {
     return (
       <main className="display-shell">
+        <BackgroundLayer config={bgConfig} />
         <div className="display-shell__content">
           <div className="display-shell__brand">
             <img src="/excelr-logo.png" alt="ExcelR" className="display-shell__brand-logo" />
@@ -184,6 +229,7 @@ function App() {
 
   return (
     <main className="app-shell">
+      <BackgroundLayer config={bgConfig} />
       <div className="app-shell__container">
         <Header phase={phase} />
 
@@ -231,33 +277,42 @@ function App() {
         </section>
 
         <div className="dashboard-grid">
-          <section className="info-card">
-            <div className="info-card__header">
-              <p className="eyebrow">SESSION INFO</p>
-            </div>
+          <div className="dashboard-grid__left">
+            <section className="info-card">
+              <div className="info-card__header">
+                <p className="eyebrow">SESSION INFO</p>
+              </div>
 
-            <div className="info-card__grid">
-              <div>
-                <span className="info-card__label">Session</span>
-                <strong>{displayTitle}</strong>
+              <div className="info-card__grid">
+                <div>
+                  <span className="info-card__label">Session</span>
+                  <strong>{displayTitle}</strong>
+                </div>
+                <div>
+                  <span className="info-card__label">Date</span>
+                  <strong>{formattedDate}</strong>
+                </div>
+                <div>
+                  <span className="info-card__label">Start</span>
+                  <strong>{formattedTime}</strong>
+                </div>
+                <div>
+                  <span className="info-card__label">Status</span>
+                  <strong className={`info-card__status info-card__status--${phase}`}>
+                    <span className="status-pill__dot" aria-hidden="true" />
+                    {statusLabel}
+                  </strong>
+                </div>
               </div>
-              <div>
-                <span className="info-card__label">Date</span>
-                <strong>{formattedDate}</strong>
-              </div>
-              <div>
-                <span className="info-card__label">Start</span>
-                <strong>{formattedTime}</strong>
-              </div>
-              <div>
-                <span className="info-card__label">Status</span>
-                <strong className={`info-card__status info-card__status--${phase}`}>
-                  <span className="status-pill__dot" aria-hidden="true" />
-                  {statusLabel}
-                </strong>
-              </div>
-            </div>
-          </section>
+            </section>
+
+            <BackgroundSettings
+              config={bgConfig}
+              onSelectPoster={handleSelectPoster}
+              onRemovePoster={handleRemovePoster}
+              onOpacityChange={handleOpacityChange}
+            />
+          </div>
 
           <SessionForm
             config={config}
@@ -300,3 +355,4 @@ function App() {
 }
 
 export default App
+
