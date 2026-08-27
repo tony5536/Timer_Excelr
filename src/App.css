@@ -179,13 +179,15 @@
 
 .timer-panel__clock {
   font-family: var(--font-mono);
-  font-size: clamp(3rem, 7vw, 7rem);
-  letter-spacing: 0.08em;
+  font-size: clamp(2rem, 5.5vw, 5.5rem);
+  letter-spacing: 0.05em;
   line-height: 1;
   font-weight: 800;
   color: #0f172a;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .timer-panel__meta {
@@ -641,14 +643,16 @@
 
 .display-shell__timer {
   font-family: var(--font-mono);
-  font-size: clamp(4rem, 12vw, 12rem);
-  line-height: 0.9;
+  font-size: clamp(3rem, 8vw, 9rem);
+  line-height: 0.95;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: #0f172a;
   margin: 0.5rem 0;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .display-shell__subtitle {
