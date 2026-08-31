@@ -758,3 +758,243 @@
     letter-spacing: 0.05em;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MULTI-SESSION STYLES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.sessions-view {
+  align-items: flex-start;
+}
+
+.sessions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  width: min(1200px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sessions-header__center {
+  text-align: center;
+  flex: 1;
+}
+
+.sessions-header__title {
+  font-size: 1.8rem;
+  color: #0f172a;
+  margin-top: 0.3rem;
+}
+
+.sessions-header__create {
+  flex-shrink: 0;
+}
+
+.sessions-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  border: 1px solid #e2e8f0;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.sessions-empty__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.sessions-empty__title {
+  font-size: 1.5rem;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.sessions-empty__text {
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.session-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border-color: #cbd5e1;
+}
+
+.session-card--live {
+  border-color: #fca5a5;
+  background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%);
+}
+
+.session-card__status {
+  align-self: flex-start;
+  margin-bottom: 1rem;
+}
+
+.session-card__title {
+  font-size: 1.25rem;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.session-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+
+.session-card__meta-sep {
+  opacity: 0.5;
+}
+
+.session-card__timer {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  margin-top: auto;
+}
+
+.session-card__timer--live {
+  background: #ffffff;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.session-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.session-card__btn {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.session-card__poster-thumb {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.session-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.form-view {
+  align-items: flex-start;
+}
+
+.form-view__container {
+  width: min(800px, 100%);
+  margin: 0 auto;
+}
+
+.form-view__body {
+  padding-top: 1.5rem;
+}
+
+.form-view__heading {
+  margin-bottom: 2rem;
+}
+
+.form-view__title {
+  font-size: 2.2rem;
+  color: #0f172a;
+  margin-top: 0.4rem;
+}
+
+.session-form--full .session-form__label {
+  font-size: 0.75rem;
+}
+
+.session-form--full .session-form__input {
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.session-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.session-form__actions--spread {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.form-view__poster-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #cbd5e1;
+}
+
+.detail-nav {
+  margin-bottom: 1.5rem;
+}
+
+.detail-nav__back {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  border-color: transparent;
+  background: transparent;
+}
+
+.detail-nav__back:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}

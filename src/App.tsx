@@ -1,358 +1,153 @@
-import { useEffect, useMemo, useState } from 'react'
-import { BackgroundLayer } from './components/BackgroundLayer'
-import { BackgroundSettings } from './components/BackgroundSettings'
-import { CountdownDisplay } from './components/CountdownDisplay'
-import { Header } from './components/Header'
-import { SessionForm } from './components/SessionForm'
-import { useCountdown } from './hooks/useCountdown'
-import type { BackgroundConfig, DisplayMode } from './types'
-import { formatCountdownDisplay, formatStopwatchClock } from './utils/countdown'
-import {
-  clearBackgroundConfig,
-  loadBackgroundConfig,
-  saveBackgroundConfig,
-} from './utils/storage'
+import { useState } from 'react'
+import type { AppView } from './types'
+import { useNow } from './hooks/useNow'
+import { useSessions } from './hooks/useSessions'
+
+import { SessionListView } from './components/SessionListView'
+import { SessionFormView } from './components/SessionFormView'
+import { SessionDetailView } from './components/SessionDetailView'
+
 import './App.css'
 
 function App() {
+  const now = useNow()
   const {
-    config,
-    countdown,
-    elapsedMs,
-    phase,
-    validationError,
-    hasStarted,
-    completedDurationMs,
-    updateConfig,
-    saveSession,
+    sessions,
+    createSession,
+    editSessionConfig,
+    deleteSession,
+    duplicateSession,
     pauseSession,
     resumeSession,
     endSession,
-    clearValidationError,
-  } = useCountdown()
+    updateSessionPoster,
+    updateSessionOpacity,
+  } = useSessions(now)
 
-  const [viewMode, setViewMode] = useState<DisplayMode>('control')
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [bgConfig, setBgConfig] = useState<BackgroundConfig>(loadBackgroundConfig)
+  const [appView, setAppView] = useState<AppView>('list')
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
 
-  const displayTitle = config.sessionTitle.trim() || 'ExcelR Training Session'
+  // Handlers for List View
+  const handleCreateNew = () => {
+    setSelectedSessionId(null)
+    setAppView('create')
+  }
 
-  const formattedDate = useMemo(() => {
-    if (!config.date) return 'No date selected'
-    const [year, month, day] = config.date.split('-').map(Number)
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(year, month - 1, day))
-  }, [config.date])
+  const handleOpenSession = (id: string) => {
+    setSelectedSessionId(id)
+    setAppView('session')
+  }
 
-  const formattedTime = useMemo(() => {
-    if (!config.startTime) return '00:00'
+  const handleEditSession = (id: string) => {
+    setSelectedSessionId(id)
+    setAppView('edit')
+  }
 
-    const [hours, minutes] = config.startTime.split(':').map(Number)
-    return new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }).format(new Date(2000, 0, 1, hours, minutes))
-  }, [config.startTime])
+  const handleDuplicateSession = (id: string) => {
+    duplicateSession(id)
+  }
 
-  const statusLabel =
-    phase === 'live'
-      ? 'LIVE'
-      : phase === 'paused'
-        ? 'PAUSED'
-        : phase === 'completed'
-          ? 'COMPLETED'
-          : 'UPCOMING'
-
-  const hasDisplayScreen = viewMode === 'display' || isFullscreen
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const active = Boolean(document.fullscreenElement)
-      setIsFullscreen(active)
-
-      if (!active && viewMode === 'display') {
-        setViewMode('control')
-      }
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [viewMode])
-
-  useEffect(() => {
-    const handleShortcut = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() !== 'f' || event.repeat) return
-
-      const target = event.target as HTMLElement | null
-      if (
-        target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable)
-      ) {
-        return
-      }
-
-      event.preventDefault()
-      if (document.fullscreenElement) {
-        void document.exitFullscreen()
-        return
-      }
-
-      if (viewMode === 'display') {
-        setViewMode('control')
-      } else {
-        setViewMode('display')
-        void document.documentElement.requestFullscreen().catch(() => {
-          setViewMode('control')
-        })
-      }
-    }
-
-    window.addEventListener('keydown', handleShortcut)
-    return () => window.removeEventListener('keydown', handleShortcut)
-  }, [viewMode])
-
-  const enterDisplayMode = async () => {
-    setViewMode('display')
-    try {
-      await document.documentElement.requestFullscreen()
-    } catch {
-      setViewMode('display')
+  const handleDeleteSession = (id: string) => {
+    deleteSession(id)
+    if (selectedSessionId === id) {
+      setSelectedSessionId(null)
+      setAppView('list')
     }
   }
 
-  const exitDisplayMode = async () => {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen()
+  // Handlers for Form View
+  const handleSaveForm = (fields: {
+    title: string
+    date: string
+    startTime: string
+    durationHours: number
+    posterUrl?: string | null
+    posterOpacity?: number
+  }) => {
+    if (appView === 'create') {
+      createSession(fields)
+    } else if (appView === 'edit' && selectedSessionId) {
+      editSessionConfig(selectedSessionId, fields)
+      // also optionally update poster
+      if (fields.posterUrl !== undefined) {
+        updateSessionPoster(selectedSessionId, fields.posterUrl)
+      }
+      if (fields.posterOpacity !== undefined) {
+        updateSessionOpacity(selectedSessionId, fields.posterOpacity)
+      }
     }
-    setViewMode('control')
-    setIsFullscreen(false)
+    setAppView('list')
+    setSelectedSessionId(null)
   }
 
-  const handleSave = () => {
-    saveSession()
-    setIsEditing(false)
+  const handleCancelForm = () => {
+    setAppView('list')
+    setSelectedSessionId(null)
   }
 
-  const handleEndConfirm = () => {
-    endSession()
-    setShowConfirmation(false)
-  }
-
-  const handleSelectPoster = (file: File): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        try {
-          const posterUrl = reader.result as string
-          const nextConfig = { ...bgConfig, posterUrl }
-          saveBackgroundConfig(nextConfig)
-          setBgConfig(nextConfig)
-          resolve()
-        } catch (err) {
-          reject(err)
-        }
-      }
-      reader.onerror = () => reject(new Error('Failed to read image file.'))
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const handleRemovePoster = () => {
-    clearBackgroundConfig()
-    setBgConfig((prev) => ({ ...prev, posterUrl: null }))
-  }
-
-  const handleOpacityChange = (opacity: number) => {
-    setBgConfig((prev) => {
-      const nextConfig = { ...prev, opacity }
-      try {
-        saveBackgroundConfig(nextConfig)
-      } catch {
-        // failure to save optional
-      }
-      return nextConfig
-    })
-  }
-
-  if (hasDisplayScreen) {
+  // Routing
+  if (appView === 'create') {
     return (
-      <main className="display-shell">
-        <BackgroundLayer config={bgConfig} />
-        <div className="display-shell__content">
-          <div className="display-shell__brand">
-            <img src="/excelr-logo.png" alt="ExcelR" className="display-shell__brand-logo" />
-          </div>
-
-          <h1 className="display-shell__title">{displayTitle}</h1>
-
-          <div className={`display-shell__status display-shell__status--${phase}`}>
-            <span className="status-pill__dot" aria-hidden="true" />
-            {statusLabel}
-          </div>
-
-          <div className="display-shell__timer">
-            {phase === 'upcoming'
-              ? formatCountdownDisplay(countdown)
-              : formatStopwatchClock(elapsedMs)}
-          </div>
-
-          <p className="display-shell__subtitle">
-            {phase === 'upcoming'
-              ? 'SESSION STARTS IN'
-              : phase === 'live'
-                ? 'SESSION IN PROGRESS'
-                : phase === 'paused'
-                  ? 'SESSION PAUSED'
-                  : 'SESSION COMPLETED'}
-          </p>
-
-          <div className="display-shell__meta">
-            <span>{formattedDate}</span>
-            <span>{formattedTime}</span>
-          </div>
-        </div>
-
-        <button type="button" className="display-shell__exit" onClick={exitDisplayMode}>
-          EXIT FULLSCREEN
-        </button>
-      </main>
+      <SessionFormView
+        editingSession={null}
+        onSave={handleSaveForm}
+        onCancel={handleCancelForm}
+      />
     )
   }
 
+  if (appView === 'edit') {
+    const session = sessions.find((s) => s.id === selectedSessionId)
+    if (!session) {
+      // Fallback if deleted
+      setAppView('list')
+      return null
+    }
+    return (
+      <SessionFormView
+        editingSession={session}
+        onSave={handleSaveForm}
+        onCancel={handleCancelForm}
+      />
+    )
+  }
+
+  if (appView === 'session') {
+    const session = sessions.find((s) => s.id === selectedSessionId)
+    if (!session) {
+      // Fallback if deleted
+      setAppView('list')
+      return null
+    }
+    return (
+      <SessionDetailView
+        session={session}
+        now={now}
+        onBack={() => {
+          setAppView('list')
+          setSelectedSessionId(null)
+        }}
+        onPause={pauseSession}
+        onResume={resumeSession}
+        onEnd={endSession}
+        onUpdatePoster={updateSessionPoster}
+        onUpdateOpacity={updateSessionOpacity}
+      />
+    )
+  }
+
+  // Default: list view
   return (
-    <main className="app-shell">
-      <BackgroundLayer config={bgConfig} />
-      <div className="app-shell__container">
-        <Header phase={phase} />
-
-        <section className="hero-panel">
-          <div className="hero-panel__topline">SESSION</div>
-          <h1 className="hero-panel__title">{displayTitle}</h1>
-
-          <div className="hero-panel__meta">
-            <span>{formattedDate}</span>
-            <span>{formattedTime}</span>
-          </div>
-
-          <CountdownDisplay
-            countdown={countdown}
-            elapsedMs={elapsedMs}
-            phase={phase}
-            hasStarted={hasStarted}
-          />
-
-          <div className="action-row">
-            {phase === 'live' ? (
-              <button type="button" className="secondary-button" onClick={pauseSession}>
-                Pause
-              </button>
-            ) : phase === 'paused' ? (
-              <button type="button" className="secondary-button" onClick={resumeSession}>
-                Resume
-              </button>
-            ) : null}
-
-            {phase !== 'completed' && (
-              <button type="button" className="danger-button" onClick={() => setShowConfirmation(true)}>
-                End Session
-              </button>
-            )}
-
-            <button type="button" className="secondary-button" onClick={() => setViewMode('display')}>
-              Display Mode
-            </button>
-
-            <button type="button" className="primary-button" onClick={enterDisplayMode}>
-              Fullscreen Display
-            </button>
-          </div>
-        </section>
-
-        <div className="dashboard-grid">
-          <div className="dashboard-grid__left">
-            <section className="info-card">
-              <div className="info-card__header">
-                <p className="eyebrow">SESSION INFO</p>
-              </div>
-
-              <div className="info-card__grid">
-                <div>
-                  <span className="info-card__label">Session</span>
-                  <strong>{displayTitle}</strong>
-                </div>
-                <div>
-                  <span className="info-card__label">Date</span>
-                  <strong>{formattedDate}</strong>
-                </div>
-                <div>
-                  <span className="info-card__label">Start</span>
-                  <strong>{formattedTime}</strong>
-                </div>
-                <div>
-                  <span className="info-card__label">Status</span>
-                  <strong className={`info-card__status info-card__status--${phase}`}>
-                    <span className="status-pill__dot" aria-hidden="true" />
-                    {statusLabel}
-                  </strong>
-                </div>
-              </div>
-            </section>
-
-            <BackgroundSettings
-              config={bgConfig}
-              onSelectPoster={handleSelectPoster}
-              onRemovePoster={handleRemovePoster}
-              onOpacityChange={handleOpacityChange}
-            />
-          </div>
-
-          <SessionForm
-            config={config}
-            phase={phase}
-            validationError={validationError}
-            isEditing={isEditing}
-            onConfigChange={updateConfig}
-            onSave={handleSave}
-            onToggleEdit={() => setIsEditing((prev) => !prev)}
-            onClearError={clearValidationError}
-          />
-        </div>
-
-        {phase === 'completed' && (
-          <section className="complete-card">
-            <p className="eyebrow">SESSION COMPLETED</p>
-            <div className="complete-card__time">{new Date(completedDurationMs).toISOString().slice(11, 19)}</div>
-          </section>
-        )}
-      </div>
-
-      {showConfirmation && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <h3>End Session</h3>
-            <p>Are you sure you want to end this session?</p>
-            <div className="modal-actions">
-              <button type="button" className="secondary-button" onClick={() => setShowConfirmation(false)}>
-                Cancel
-              </button>
-              <button type="button" className="danger-button" onClick={handleEndConfirm}>
-                End Session
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
+    <SessionListView
+      sessions={sessions}
+      now={now}
+      onCreateNew={handleCreateNew}
+      onOpenSession={handleOpenSession}
+      onEditSession={handleEditSession}
+      onDuplicateSession={handleDuplicateSession}
+      onDeleteSession={handleDeleteSession}
+    />
   )
 }
 
 export default App
-
